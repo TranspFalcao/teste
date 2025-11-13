@@ -26,11 +26,28 @@
 </div>
 <div class='row mb-4'>
 <div class='col-md-6'><button id='btnExcel' class='btn btn-success w-100'>Exportar Excel</button></div>
-<div class='col-md-6'><button id='btnPDF' class='btn btn-danger w-100'>Gerar PDF</button></div>
+<div class='col-md-6'><button id='btnPDF' class='btn btn-danger w-100'>Exportar PDF</button></div>
 </div>
 <div class='row mb-4'>
-<div class='col-md-6'><canvas id='chart'></canvas></div>
-<div class='col-md-6'><table class='table table-striped table-responsive' id='dataTable'><thead><tr><th>Unidade</th><th>UF</th><th>Mês</th><th>Ano</th><th>Tipo</th><th>Valor</th></tr></thead><tbody></tbody></table></div>
+<div class='col-md-12'>
+<canvas id='chart'></canvas>
+</div>
+</div>
+<div class='table-responsive'>
+<table id='dataTable' class='table table-striped table-bordered'>
+<thead>
+<tr>
+<th>UNIDADE</th>
+<th>UF</th>
+<th>MÊS</th>
+<th>ANO</th>
+<th>TIPO</th>
+<th>VALOR</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
 </div>
 </div>
 <script src='script.js'></script>
