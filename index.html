@@ -24,6 +24,7 @@
         th { background-color: #f4f4f4; }
         .negative { color: red; }
         .chart-container { width: 90%; margin: 30px auto; }
+        .message { color: #c0392b; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -45,6 +46,7 @@
         <div class="indicator credit">Total Crédito: R$ <span id="totalCredito">0,00</span></div>
     </div>
 
+    <div id="message" class="message"></div>
     <div id="table-container"></div>
 
     <div class="chart-container">
@@ -62,16 +64,22 @@
 
         function handleFile(e) {
             const file = e.target.files[0];
+            if(!file) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                const data = new Uint8Array(event.target.result);
-                workbook = XLSX.read(data, { type: 'array' });
+                const data = event.target.result;
+                workbook = XLSX.read(data, { type: 'binary' }); // Suporte para .xls e .xlsx
 
                 const sheetNames = workbook.SheetNames;
+                if(sheetNames.length === 0) {
+                    document.getElementById('message').textContent = 'Nenhuma aba encontrada no arquivo.';
+                    return;
+                }
                 fillSelect('sheetConsolidado', sheetNames);
                 fillSelect('sheetDetalhado', sheetNames);
+                document.getElementById('message').textContent = 'Selecione as abas para visualizar os dados.';
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsBinaryString(file);
         }
 
         document.getElementById('sheetConsolidado').addEventListener('change', loadSheets);
@@ -84,6 +92,11 @@
                 const aba6 = XLSX.utils.sheet_to_json(workbook.Sheets[consolidado], { header: 1 });
                 aba2Data = XLSX.utils.sheet_to_json(workbook.Sheets[detalhado]);
 
+                if(aba6.length < 6) {
+                    document.getElementById('message').textContent = 'A aba consolidada não possui dados suficientes.';
+                    return;
+                }
+                document.getElementById('message').textContent = '';
                 populateFilters(aba2Data);
                 calculateIndicators(aba2Data);
                 renderTable(aba6);
