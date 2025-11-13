@@ -34,6 +34,8 @@
         <label>UF: <select id="filterUF"></select></label>
         <label>Ano: <select id="filterAno"></select></label>
         <label>Tipo: <select id="filterTipo"></select></label>
+        <label>Aba Consolidado: <select id="sheetConsolidado"></select></label>
+        <label>Aba Detalhado: <select id="sheetDetalhado"></select></label>
         <button onclick="exportExcel()">Exportar Excel</button>
         <button onclick="exportPDF()">Exportar PDF</button>
     </div>
@@ -54,6 +56,7 @@
 
     <script>
         let aba2Data = [];
+        let workbook;
 
         document.getElementById('upload').addEventListener('change', handleFile);
 
@@ -62,17 +65,38 @@
             const reader = new FileReader();
             reader.onload = function(event) {
                 const data = new Uint8Array(event.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+                workbook = XLSX.read(data, { type: 'array' });
 
-                const aba6 = XLSX.utils.sheet_to_json(workbook.Sheets['Plan6'], { header: 1 });
-                aba2Data = XLSX.utils.sheet_to_json(workbook.Sheets['Plan2']);
+                const sheetNames = workbook.SheetNames;
+                fillSelect('sheetConsolidado', sheetNames);
+                fillSelect('sheetDetalhado', sheetNames);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        document.getElementById('sheetConsolidado').addEventListener('change', loadSheets);
+        document.getElementById('sheetDetalhado').addEventListener('change', loadSheets);
+
+        function loadSheets() {
+            const consolidado = document.getElementById('sheetConsolidado').value;
+            const detalhado = document.getElementById('sheetDetalhado').value;
+            if(consolidado && detalhado) {
+                const aba6 = XLSX.utils.sheet_to_json(workbook.Sheets[consolidado], { header: 1 });
+                aba2Data = XLSX.utils.sheet_to_json(workbook.Sheets[detalhado]);
 
                 populateFilters(aba2Data);
                 calculateIndicators(aba2Data);
                 renderTable(aba6);
                 renderCharts(aba6);
-            };
-            reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function fillSelect(id, items) {
+            const select = document.getElementById(id);
+            select.innerHTML = '<option value="">Selecione</option>';
+            items.forEach(val => {
+                select.innerHTML += `<option value="${val}">${val}</option>`;
+            });
         }
 
         function populateFilters(data) {
@@ -86,17 +110,9 @@
                 if(row.TIPO) tipoSet.add(row.TIPO);
             });
 
-            fillSelect('filterUF', ufSet);
-            fillSelect('filterAno', anoSet);
-            fillSelect('filterTipo', tipoSet);
-        }
-
-        function fillSelect(id, set) {
-            const select = document.getElementById(id);
-            select.innerHTML = '<option value="">Todos</option>';
-            set.forEach(val => {
-                select.innerHTML += `<option value="${val}">${val}</option>`;
-            });
+            fillSelect('filterUF', Array.from(ufSet));
+            fillSelect('filterAno', Array.from(anoSet));
+            fillSelect('filterTipo', Array.from(tipoSet));
         }
 
         function calculateIndicators(data) {
@@ -104,8 +120,8 @@
             let totalCredito = 0;
             data.forEach(row => {
                 const valor = parseFloat(row.VALOR) || 0;
-                if(row.TIPO === 'Débito') totalDebito += valor;
-                if(row.TIPO === 'Crédito') totalCredito += valor;
+                if(row.TIPO && row.TIPO.toLowerCase().includes('débito')) totalDebito += valor;
+                if(row.TIPO && row.TIPO.toLowerCase().includes('crédito')) totalCredito += valor;
             });
             document.getElementById('totalDebito').textContent = totalDebito.toLocaleString('pt-BR');
             document.getElementById('totalCredito').textContent = totalCredito.toLocaleString('pt-BR');
