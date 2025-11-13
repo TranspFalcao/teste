@@ -17,23 +17,23 @@
 </head>
 <body>
 <h1>Demonstrativo por Unidade</h1>
-<input type='file' id='input-excel' accept='.xls,.xlsx' />
 <div class='totais'>
     <div class='debito'>Total Débito: R$ <span id='total-debito'>0,00</span></div>
     <div class='credito'>Total Crédito: R$ <span id='total-credito'>0,00</span></div>
 </div>
 <div id='table-container'></div>
 <script>
-    document.getElementById('input-excel').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
+    // Substitua pela URL real do arquivo Excel no GitHub Pages
+    const excelUrl = 'https://SEU_USUARIO.github.io/SEU_REPOSITORIO/Impostos%20a%20pagar.xls';
+
+    fetch(excelUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
             let totalDebito = 0;
             let totalCredito = 0;
             let html = '';
+
             workbook.SheetNames.forEach(sheetName => {
                 const sheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
@@ -49,25 +49,26 @@
                             }
                         });
                         html += '</tr>';
-                        // Verificar valores para cálculo
+
+                        // Calcular totais se houver coluna TIPO e VALOR
                         if (rowIndex > 0) {
-                            const tipoIndex = row.findIndex(c => c === 'Débito' || c === 'Crédito');
-                            const valorIndex = row.findIndex(c => typeof c === 'number');
-                            if (tipoIndex !== -1 && valorIndex !== -1) {
-                                if (row[tipoIndex] === 'Débito') totalDebito += row[valorIndex];
-                                if (row[tipoIndex] === 'Crédito') totalCredito += row[valorIndex];
+                            const tipo = row.find(c => c === 'Debito' || c === 'Débito' || c === 'Credito' || c === 'Crédito');
+                            const valor = row.find(c => typeof c === 'number');
+                            if (tipo && valor !== undefined) {
+                                if (tipo.toLowerCase().includes('debito')) totalDebito += valor;
+                                if (tipo.toLowerCase().includes('credito')) totalCredito += valor;
                             }
                         }
                     });
                     html += '</table>';
                 }
             });
+
             document.getElementById('table-container').innerHTML = html;
             document.getElementById('total-debito').textContent = totalDebito.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             document.getElementById('total-credito').textContent = totalCredito.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-        };
-        reader.readAsArrayBuffer(file);
-    });
+        })
+        .catch(error => console.error('Erro ao carregar Excel:', error));
 </script>
 </body>
 </html>
