@@ -1,20 +1,23 @@
-# Demonstrativo por Unidade
+# Demonstrativo Financeiro com Bootstrap e Gráficos
 
-## Publicação no GitHub Pages
-1. Suba todos os arquivos para o repositório.
-2. Vá em **Configurações > Pages** e selecione a branch principal.
-3. Acesse: https://transpfalcao.github.io/teste/
-
-O script já está configurado para carregar o CSV via URL:
-```
-https://transpfalcao.github.io/teste/plan6_final_normalizado.csv
-```
+## Ajustes Realizados
+- O script agora carrega o arquivo **Impostos.csv**.
+- Compatível com GitHub Pages e execução local.
 
 ## Estrutura
 - index.html
 - style.css
 - script.js
-- plan6_final_normalizado.csv
+- Impostos.csv
 - README.md
 
-Abra `index.html` no navegador ou acesse via GitHub Pages.
+## Como executar localmente
+1. Coloque todos os arquivos na mesma pasta.
+2. Abra `index.html` no navegador.
+
+## Publicar no GitHub Pages
+1. Suba todos os arquivos para o repositório.
+2. Ative GitHub Pages em **Configurações > Pages**.
+3. Acesse: `https://transpfalcao.github.io/teste/`
+
+O script já está configurado para carregar `Impostos.csv`.
